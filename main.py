@@ -1,7 +1,15 @@
 import json
 import requests
 import os
-import time
+from time import *
+
+webex_url = "https://webexapis.com/v1/messages"
+accessToken = "Bearer NWJmZjM4OWMtYWRiZi00MTU4LTlkYzAtZGJkMzcxMGIyZjFjYzFhNTk1MDQtMmFl_P0A1_4a252141-f787-4173-a4c9-bde69c553a24"
+roomId = "Y2lzY29zcGFyazovL3VybjpURUFNOnVzLXdlc3QtMl9yL1JPT00vMDFlYzE4MDAtOGFlMC0xMWVjLTk1YjUtMTExZmJjNzAzZjRi"
+webexHeaders = { 
+                    "Authorization": accessToken,
+                    "Content-Type": "application/json"
+                }
 
 ticket_url = "http://localhost:58000/api/v1/ticket"
 
@@ -12,6 +20,7 @@ password = input("Password: ")
 headers = {
     "content-type": "application/json"
 }
+
 
 body_json = {
     "username": username,
@@ -55,8 +64,20 @@ while action != 0:
         networkDevices = respon_json["response"]
 
         print("Hostname\tType\tIP")
+        message = "Hostname\tType\tIP"
         for networkDevice in networkDevices:
             print(networkDevice["hostname"], "\t", networkDevice["platformId"], "\t", networkDevice["managementIpAddress"])
+            message += networkDevice["hostname"]+ "\t"+ networkDevice["platformId"]+ "\t"+ networkDevice["managementIpAddress"]+ "\n"
+        PostData = {
+                "roomId": roomId,
+                "text": message
+               }
+        r = requests.post( "https://webexapis.com/v1/messages", 
+                            data = json.dumps(PostData), 
+                            headers = webexHeaders
+                     )
+        print(r.status_code)
+        print(r.text)
         d = input("\npress Enter to Back")
         continue
     elif action == 2:
@@ -115,7 +136,4 @@ headers = {
     "X-Auth-Token": serviceTicket
 }
 
-logout_url = "http://localhost:58000/api/v1/ticket/"+serviceTicket
-req = requests.delete(logout_url, headers=headers, verify=False)
-print(req.status_code)
 print("Program Dihentikan")
